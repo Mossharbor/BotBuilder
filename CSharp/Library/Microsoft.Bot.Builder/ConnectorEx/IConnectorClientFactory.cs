@@ -69,12 +69,12 @@ namespace Microsoft.Bot.Builder.Dialogs.Internals
         private readonly Uri serviceUri;
         private readonly IAddress address;
         private readonly MicrosoftAppCredentials credentials;
-        private readonly ConnectorClient connectorClient;
+        private readonly IConnectorClient connectorClient;
         private readonly StateClient stateClient;
         private readonly OAuthClient oauthClient;
 
         // NOTE: These should be moved to autofac registration
-        private static readonly ConcurrentDictionary<string, ConnectorClient> connectorClients = new ConcurrentDictionary<string, ConnectorClient>();
+        private static readonly ConcurrentDictionary<string, IConnectorClient> connectorClients = new ConcurrentDictionary<string, IConnectorClient>();
         private static readonly ConcurrentDictionary<string, StateClient> stateClients = new ConcurrentDictionary<string, StateClient>();
         private static readonly ConcurrentDictionary<string, OAuthClient> oauthClients = new ConcurrentDictionary<string, OAuthClient>();
 
@@ -87,7 +87,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Internals
             string key = $"{serviceUri}{credentials.MicrosoftAppId}";
             if (!connectorClients.TryGetValue(key, out connectorClient))
             {
-                connectorClient = new ConnectorClient(this.serviceUri, this.credentials);
+                if (null != this.serviceUri && this.serviceUri.AbsoluteUri.Length > 2 && this.serviceUri.AbsoluteUri[0] == 'w' && this.serviceUri.AbsoluteUri[1] == 's')
+                {
+                    connectorClient = new Microsoft.Bot.Builder.ConnectorEx.ConnectorClientWebSockets(this.serviceUri, this.credentials);
+                }
+                else
+                {
+                    connectorClient = new ConnectorClient(this.serviceUri, this.credentials);
+                }
                 connectorClients[key] = connectorClient;
             }
 
