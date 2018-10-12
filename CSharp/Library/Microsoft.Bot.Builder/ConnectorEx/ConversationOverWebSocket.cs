@@ -66,7 +66,7 @@ namespace Microsoft.Bot.Builder.ConnectorEx
             string activityString = JsonConvert.SerializeObject(activity); 
             var activityBytes = System.Text.UTF8Encoding.UTF8.GetBytes(activityString);
             ArraySegment<byte> buffer = new ArraySegment<byte>(activityBytes);
-            await socket.SendAsync(buffer, type, false, cancellationToken);
+            await socket.SendAsync(buffer, type, true, cancellationToken);
             
             // Create Result
             var _result = new HttpOperationResponse<ResourceResponse>();
